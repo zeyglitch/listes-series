@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Liste de Séries</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>🎬 Ma Collection de Séries</h1>
+        <nav>
+            <ul>
+                <li><a href="#mes-series">Mes Séries</a></li>
+                <li><a href="#a-voir">À Voir</a></li>
+                <li><a href="#favorites">Favorites</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="mes-series">
+            <h2>Mes Séries Visionnées</h2>
+            <div class="series-list">
+                <!-- Les séries seront ajoutées ici dynamiquement -->
+            </div>
+        </section>
+
+        <section id="a-voir">
+            <h2>Séries à Voir</h2>
+            <div class="series-list">
+                <!-- Les séries à voir seront ajoutées ici -->
+            </div>
+        </section>
+
+        <section id="favorites">
+            <h2>Mes Favorites</h2>
+            <div class="series-list">
+                <!-- Les séries favorites seront ajoutées ici -->
+            </div>
+        </section>
+
+        <section id="add-series">
+            <h2>Ajouter une Série</h2>
+            <form id="series-form">
+                <input type="text" id="title" placeholder="Titre de la série" required>
+                <select id="status">
+                    <option value="watched">Déjà vue</option>
+                    <option value="to-watch">À voir</option>
+                    <option value="favorite">Favorite</option>
+                </select>
+                <input type="number" id="rating" placeholder="Note (1-10)" min="1" max="10">
+                <button type="submit">Ajouter</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Ma Liste de Séries - Créé avec ❤️</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
