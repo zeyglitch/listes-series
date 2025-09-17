@@ -1,6 +1,7 @@
 // Données des séries (seront stockées dans le localStorage)
 let series = JSON.parse(localStorage.getItem('series')) || [];
 
+
 // Éléments du DOM
 const seriesForm = document.getElementById('series-form');
 const seriesLists = {
