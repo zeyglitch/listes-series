@@ -3,62 +3,800 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ma Liste de Séries</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>My Series Tracker</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+            --text-color: #333333;
+            --border-color: #dddddd;
+            --finished-color: #4caf50;
+            --ongoing-color: #2196f3;
+            --todo-color: #ff9800;
+            --dropped-color: #f44336;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: var(--card-color);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            flex: 1;
+            text-align: center;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+
+        .tab:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-bottom: 3px solid white;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .category {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .category-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .series-list {
+            list-style-type: none;
+        }
+
+        .series-item {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-left: 4px solid var(--ongoing-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .series-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .series-info {
+            flex: 1;
+        }
+
+        .series-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .series-chapters {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .chapter-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .chapter-count {
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        .series-status {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        .status-finished {
+            background-color: var(--finished-color);
+        }
+
+        .status-ongoing {
+            background-color: var(--ongoing-color);
+        }
+
+        .status-todo {
+            background-color: var(--todo-color);
+        }
+
+        .status-dropped {
+            background-color: var(--dropped-color);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .categories {
+                flex-direction: column;
+            }
+            
+            .filters {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .filter-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🎬 Ma Collection de Séries</h1>
-        <nav>
-            <ul>
-                <li><a href="#mes-series">Mes Séries</a></li>
-                <li><a href="#a-voir">À Voir</a></li>
-                <li><a href="#favorites">Favorites</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <section id="mes-series">
-            <h2>Mes Séries Visionnées</h2>
-            <div class="series-list">
-                <!-- Les séries seront ajoutées ici dynamiquement -->
+    <div class="container">
+        <header>
+            <h1>My Series Tracker</h1>
+            <div class="tabs">
+                <div class="tab active" data-tab="manwha">Manwha</div>
+                <div class="tab" data-tab="manga">Manga</div>
+                <div class="tab" data-tab="anime">Anime</div>
+                <div class="tab" data-tab="novel">Novel</div>
             </div>
-        </section>
+        </header>
 
-        <section id="a-voir">
-            <h2>Séries à Voir</h2>
-            <div class="series-list">
-                <!-- Les séries à voir seront ajoutées ici -->
+        <div class="content">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="status-filter">Filtrer par statut:</label>
+                    <select id="status-filter">
+                        <option value="all">Tous</option>
+                        <option value="finished">Terminé</option>
+                        <option value="ongoing">En cours</option>
+                        <option value="todo">À lire</option>
+                        <option value="dropped">Abandonné</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="sort">Trier par:</label>
+                    <select id="sort">
+                        <option value="last-updated">Dernière modification</option>
+                        <option value="name">Nom</option>
+                    </select>
+                </div>
             </div>
-        </section>
 
-        <section id="favorites">
-            <h2>Mes Favorites</h2>
-            <div class="series-list">
-                <!-- Les séries favorites seront ajoutées ici -->
+            <div class="tab-content active" id="manwha-content">
+                <div class="categories">
+                    <!-- Catégories de manwha générées dynamiquement -->
+                </div>
             </div>
-        </section>
 
-        <section id="add-series">
-            <h2>Ajouter une Série</h2>
-            <form id="series-form">
-                <input type="text" id="title" placeholder="Titre de la série" required>
-                <select id="status">
-                    <option value="watched">Déjà vue</option>
-                    <option value="to-watch">À voir</option>
-                    <option value="favorite">Favorite</option>
-                </select>
-                <input type="number" id="rating" placeholder="Note (1-10)" min="1" max="10">
-                <button type="submit">Ajouter</button>
+            <div class="tab-content" id="manga-content">
+                <div class="categories">
+                    <!-- Catégories de manga générées dynamiquement -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="anime-content">
+                <div class="categories">
+                    <!-- Catégories d'anime générées dynamiquement -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="novel-content">
+                <div class="categories">
+                    <!-- Catégories de novel générées dynamiquement -->
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" id="add-category">Ajouter un thème</button>
+                <button class="btn btn-primary" id="add-series">Ajouter une série</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter un thème</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="category-form">
+                <div class="form-group">
+                    <label for="category-type">Type:</label>
+                    <select id="category-type" required>
+                        <option value="manwha">Manwha</option>
+                        <option value="manga">Manga</option>
+                        <option value="anime">Anime</option>
+                        <option value="novel">Novel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="category-name">Nom du thème:</label>
+                    <input type="text" id="category-name" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Ajouter</button>
             </form>
-        </section>
-    </main>
+        </div>
+    </div>
 
-    <footer>
-        <p>&copy; 2025 Ma Liste de Séries - Créé avec ❤️</p>
-    </footer>
+    <div class="modal" id="series-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter une série</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="series-form">
+                <div class="form-group">
+                    <label for="series-type">Type:</label>
+                    <select id="series-type" required>
+                        <option value="manwha">Manwha</option>
+                        <option value="manga">Manga</option>
+                        <option value="anime">Anime</option>
+                        <option value="novel">Novel</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="series-category">Thème:</label>
+                    <select id="series-category" required>
+                        <!-- Options générées dynamiquement -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="series-name">Nom de la série:</label>
+                    <input type="text" id="series-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="series-chapters">Chapitres:</label>
+                    <input type="number" id="series-chapters" value="0" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="series-status">Statut:</label>
+                    <select id="series-status" required>
+                        <option value="ongoing">En cours</option>
+                        <option value="finished">Terminé</option>
+                        <option value="todo">À lire</option>
+                        <option value="dropped">Abandonné</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+            </form>
+        </div>
+    </div>
 
-    <script src="js/script.js"></script>
+    <script>
+        // Données de l'application
+        let appData = {
+            manwha: {
+                romance: [
+                    { name: "True Beauty", chapters: 50, status: "ongoing", lastUpdated: Date.now() }
+                ],
+                action: [
+                    { name: "Solo Leveling", chapters: 120, status: "finished", lastUpdated: Date.now() - 100000 }
+                ]
+            },
+            manga: {
+                romance: [
+                    { name: "Fruits Basket", chapters: 136, status: "finished", lastUpdated: Date.now() - 200000 }
+                ],
+                murim: [
+                    { name: "Gosu", chapters: 80, status: "ongoing", lastUpdated: Date.now() - 300000 }
+                ]
+            },
+            anime: {
+                action: [
+                    { name: "Attack on Titan", chapters: 75, status: "finished", lastUpdated: Date.now() - 400000 }
+                ]
+            },
+            novel: {
+                fantasy: [
+                    { name: "The Beginning After the End", chapters: 350, status: "ongoing", lastUpdated: Date.now() - 500000 }
+                ]
+            }
+        };
+
+        // Charger les données depuis le localStorage si disponibles
+        function loadData() {
+            const savedData = localStorage.getItem('seriesTrackerData');
+            if (savedData) {
+                appData = JSON.parse(savedData);
+            }
+        }
+
+        // Sauvegarder les données dans le localStorage
+        function saveData() {
+            localStorage.setItem('seriesTrackerData', JSON.stringify(appData));
+        }
+
+        // Afficher les catégories et séries
+        function renderCategories() {
+            const tabs = ['manwha', 'manga', 'anime', 'novel'];
+            
+            tabs.forEach(tab => {
+                const contentElement = document.getElementById(`${tab}-content`);
+                const categoriesElement = contentElement.querySelector('.categories');
+                categoriesElement.innerHTML = '';
+                
+                if (appData[tab] && Object.keys(appData[tab]).length > 0) {
+                    for (const [categoryName, series] of Object.entries(appData[tab])) {
+                        const categoryElement = document.createElement('div');
+                        categoryElement.className = 'category';
+                        
+                        const categoryHeader = document.createElement('div');
+                        categoryHeader.className = 'category-header';
+                        
+                        const categoryTitle = document.createElement('div');
+                        categoryTitle.className = 'category-title';
+                        categoryTitle.textContent = categoryName;
+                        
+                        categoryHeader.appendChild(categoryTitle);
+                        categoryElement.appendChild(categoryHeader);
+                        
+                        const seriesList = document.createElement('ul');
+                        seriesList.className = 'series-list';
+                        
+                        // Filtrer et trier les séries
+                        const statusFilter = document.getElementById('status-filter').value;
+                        const sortBy = document.getElementById('sort').value;
+                        
+                        let filteredSeries = [...series];
+                        
+                        if (statusFilter !== 'all') {
+                            filteredSeries = filteredSeries.filter(s => s.status === statusFilter);
+                        }
+                        
+                        if (sortBy === 'last-updated') {
+                            filteredSeries.sort((a, b) => b.lastUpdated - a.lastUpdated);
+                        } else {
+                            filteredSeries.sort((a, b) => a.name.localeCompare(b.name));
+                        }
+                        
+                        filteredSeries.forEach(seriesItem => {
+                            const seriesElement = document.createElement('li');
+                            seriesElement.className = 'series-item';
+                            seriesElement.dataset.status = seriesItem.status;
+                            
+                            const seriesInfo = document.createElement('div');
+                            seriesInfo.className = 'series-info';
+                            
+                            const seriesName = document.createElement('div');
+                            seriesName.className = 'series-name';
+                            seriesName.textContent = seriesItem.name;
+                            
+                            const seriesChapters = document.createElement('div');
+                            seriesChapters.className = 'series-chapters';
+                            
+                            const decreaseBtn = document.createElement('button');
+                            decreaseBtn.className = 'chapter-btn';
+                            decreaseBtn.textContent = '-';
+                            decreaseBtn.addEventListener('click', () => {
+                                if (seriesItem.chapters > 0) {
+                                    seriesItem.chapters--;
+                                    seriesItem.lastUpdated = Date.now();
+                                    updateChaptersDisplay(seriesChapters, seriesItem.chapters);
+                                    saveData();
+                                    renderCategories();
+                                }
+                            });
+                            
+                            const chapterCount = document.createElement('span');
+                            chapterCount.className = 'chapter-count';
+                            chapterCount.textContent = seriesItem.chapters;
+                            
+                            const increaseBtn = document.createElement('button');
+                            increaseBtn.className = 'chapter-btn';
+                            increaseBtn.textContent = '+';
+                            increaseBtn.addEventListener('click', () => {
+                                seriesItem.chapters++;
+                                seriesItem.lastUpdated = Date.now();
+                                updateChaptersDisplay(seriesChapters, seriesItem.chapters);
+                                saveData();
+                                renderCategories();
+                            });
+                            
+                            seriesChapters.appendChild(decreaseBtn);
+                            seriesChapters.appendChild(chapterCount);
+                            seriesChapters.appendChild(increaseBtn);
+                            
+                            const seriesStatus = document.createElement('div');
+                            seriesStatus.className = `series-status status-${seriesItem.status}`;
+                            seriesStatus.textContent = getStatusText(seriesItem.status);
+                            seriesStatus.addEventListener('click', () => {
+                                const statuses = ['ongoing', 'finished', 'todo', 'dropped'];
+                                const currentIndex = statuses.indexOf(seriesItem.status);
+                                const nextIndex = (currentIndex + 1) % statuses.length;
+                                seriesItem.status = statuses[nextIndex];
+                                seriesItem.lastUpdated = Date.now();
+                                seriesStatus.className = `series-status status-${seriesItem.status}`;
+                                seriesStatus.textContent = getStatusText(seriesItem.status);
+                                saveData();
+                                renderCategories();
+                            });
+                            
+                            seriesInfo.appendChild(seriesName);
+                            seriesInfo.appendChild(seriesChapters);
+                            
+                            seriesElement.appendChild(seriesInfo);
+                            seriesElement.appendChild(seriesStatus);
+                            
+                            seriesList.appendChild(seriesElement);
+                        });
+                        
+                        categoryElement.appendChild(seriesList);
+                        categoriesElement.appendChild(categoryElement);
+                    }
+                } else {
+                    categoriesElement.innerHTML = '<p>Aucune catégorie pour le moment. Ajoutez-en une!</p>';
+                }
+            });
+        }
+
+        function updateChaptersDisplay(element, count) {
+            element.querySelector('.chapter-count').textContent = count;
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'ongoing': 'En cours',
+                'finished': 'Terminé',
+                'todo': 'À lire',
+                'dropped': 'Abandonné'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Gestion des onglets
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Désactiver tous les onglets
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Activer l'onglet cliqué
+                    tab.classList.add('active');
+                    
+                    // Cacher tous les contenus
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Afficher le contenu correspondant
+                    const tabName = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabName}-content`).classList.add('active');
+                    
+                    // Mettre à jour les options de catégorie dans le formulaire d'ajout de série
+                    updateCategoryOptions();
+                });
+            });
+        }
+
+        // Mettre à jour les options de catégorie dans le formulaire d'ajout de série
+        function updateCategoryOptions() {
+            const seriesCategorySelect = document.getElementById('series-category');
+            const activeTab = document.querySelector('.tab.active').getAttribute('data-tab');
+            
+            // Vider les options existantes
+            seriesCategorySelect.innerHTML = '';
+            
+            // Ajouter les catégories de l'onglet actif
+            if (appData[activeTab]) {
+                Object.keys(appData[activeTab]).forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    seriesCategorySelect.appendChild(option);
+                });
+            }
+            
+            // Si aucune catégorie n'existe, ajouter un message
+            if (seriesCategorySelect.options.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Aucune catégorie disponible - Créez-en d\'abord';
+                seriesCategorySelect.appendChild(option);
+                seriesCategorySelect.disabled = true;
+            } else {
+                seriesCategorySelect.disabled = false;
+            }
+        }
+
+        // Gestion des modals
+        function setupModals() {
+            // Modal d'ajout de catégorie
+            const categoryModal = document.getElementById('category-modal');
+            const addCategoryBtn = document.getElementById('add-category');
+            const categoryClose = categoryModal.querySelector('.close');
+            const categoryForm = document.getElementById('category-form');
+            
+            addCategoryBtn.addEventListener('click', () => {
+                categoryModal.style.display = 'flex';
+            });
+            
+            categoryClose.addEventListener('click', () => {
+                categoryModal.style.display = 'none';
+            });
+            
+            categoryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('category-type').value;
+                const name = document.getElementById('category-name').value;
+                
+                if (!appData[type]) {
+                    appData[type] = {};
+                }
+                
+                if (!appData[type][name]) {
+                    appData[type][name] = [];
+                    saveData();
+                    renderCategories();
+                    updateCategoryOptions();
+                    categoryModal.style.display = 'none';
+                    categoryForm.reset();
+                } else {
+                    alert('Cette catégorie existe déjà pour ce type!');
+                }
+            });
+            
+            // Modal d'ajout de série
+            const seriesModal = document.getElementById('series-modal');
+            const addSeriesBtn = document.getElementById('add-series');
+            const seriesClose = seriesModal.querySelector('.close');
+            const seriesForm = document.getElementById('series-form');
+            
+            addSeriesBtn.addEventListener('click', () => {
+                updateCategoryOptions();
+                seriesModal.style.display = 'flex';
+            });
+            
+            seriesClose.addEventListener('click', () => {
+                seriesModal.style.display = 'none';
+            });
+            
+            seriesForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const type = document.getElementById('series-type').value;
+                const category = document.getElementById('series-category').value;
+                const name = document.getElementById('series-name').value;
+                const chapters = parseInt(document.getElementById('series-chapters').value);
+                const status = document.getElementById('series-status').value;
+                
+                if (appData[type] && appData[type][category]) {
+                    // Vérifier si la série existe déjà
+                    const exists = appData[type][category].some(series => series.name === name);
+                    
+                    if (!exists) {
+                        appData[type][category].push({
+                            name,
+                            chapters,
+                            status,
+                            lastUpdated: Date.now()
+                        });
+                        
+                        saveData();
+                        renderCategories();
+                        seriesModal.style.display = 'none';
+                        seriesForm.reset();
+                    } else {
+                        alert('Cette série existe déjà dans cette catégorie!');
+                    }
+                }
+            });
+            
+            // Fermer les modals en cliquant à l'extérieur
+            window.addEventListener('click', (e) => {
+                if (e.target === categoryModal) {
+                    categoryModal.style.display = 'none';
+                }
+                if (e.target === seriesModal) {
+                    seriesModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Configuration des filtres
+        function setupFilters() {
+            const statusFilter = document.getElementById('status-filter');
+            const sortSelect = document.getElementById('sort');
+            
+            statusFilter.addEventListener('change', renderCategories);
+            sortSelect.addEventListener('change', renderCategories);
+        }
+
+        // Initialisation de l'application
+        function initApp() {
+            loadData();
+            setupTabs();
+            setupModals();
+            setupFilters();
+            renderCategories();
+            updateCategoryOptions();
+        }
+
+        // Démarrer l'application quand la page est chargée
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
 </body>
 </html>
